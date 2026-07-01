@@ -1,0 +1,54 @@
+<mujoco model="cubebot">
+  <compiler angle="radian"/>
+
+  <worldbody>
+    <body name="part_1_2" pos="0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_10" pos="0 0 0" axis="0 -1 0"/>
+      <body name="leg_middle_part_1" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_12" pos="0 0 0" axis="0 -1 0"/>
+        <body name="part_1_4" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
+          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_3" pos="0 0 0" axis="1 0 0"/>
+        </body>
+      </body>
+    </body>
+    <body name="part_1_6" pos="0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_5" pos="0 0 0" axis="0 -1 0"/>
+      <body name="leg_middle_part_2" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_6" pos="0 0 0" axis="0 -1 0"/>
+        <body name="part_1_5" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
+          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_4" pos="0 0 0" axis="1 0 0"/>
+        </body>
+      </body>
+    </body>
+    <body name="part_1" pos="-0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_7" pos="0 0 0" axis="0 -1 0"/>
+      <body name="leg_middle_part_3" pos="-0.025 0.0075 -0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="-0.024 -0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_8" pos="0 0 0" axis="0 1 0"/>
+        <body name="part_1_3" pos="-0.048 -0.034 0" quat="0.707105 0 0 -0.707108">
+          <inertial pos="-0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_1" pos="0 0 0" axis="-1 0 0"/>
+        </body>
+      </body>
+    </body>
+    <body name="part_1_7" pos="-0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_9" pos="0 0 0" axis="0 -1 0"/>
+      <body name="leg_middle_part" pos="-0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="-0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_11" pos="0 0 0" axis="0 -1 0"/>
+        <body name="part_1_1" pos="-0.048 0 0" quat="9.38184e-07 0.707105 -0.707108 -9.38187e-07">
+          <inertial pos="-0.017 0.0291323 -0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_2" pos="0 0 0" axis="-1 0 0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

@@ -1,0 +1,20 @@
+<mujoco model="cubebot_scene">
+
+    <include file="/Users/vglukhov/PROJECTS/sim/CubeBot_Playground/cubebot/urdf/cubebot_mesh_collision.xml"/>
+    
+    <visual>
+        <headlight/>
+    </visual>
+
+    <worldbody>
+
+        <!-- Ground -->
+        <geom
+            name="floor"
+            type="plane"
+            size="5 5 0.1"
+            rgba="0.8 0.8 0.8 1"/>
+
+    </worldbody>
+
+</mujoco>

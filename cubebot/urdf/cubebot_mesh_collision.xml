@@ -1,0 +1,110 @@
+<mujoco model="cubebot">
+  <compiler angle="radian"/>
+
+  <asset>
+    <mesh name="Bottom_case" content_type="model/stl" file="meshes/Bottom_case.stl"/>
+    <mesh name="Foot" content_type="model/stl" file="meshes/Foot.stl"/>
+    <mesh name="Leg_middle_part" content_type="model/stl" file="meshes/Leg_middle_part.stl"/>
+    <mesh name="Part_1" content_type="model/stl" file="meshes/Part_1.stl"/>
+    <mesh name="Part_1_1" content_type="model/stl" file="meshes/Part_1_1.stl"/>
+    <!-- <mesh name="Top_case" content_type="model/stl" file="meshes/Top_case.stl"/> -->
+    <mesh name="Top_case" content_type="model/stl" file="meshes/Top_case_HD.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+
+  <worldbody>
+   <body name="cubebot" pos="0 0 0.25" euler="0 45 0">
+    <freejoint name="root_freejoint"/>
+    <geom
+      type="mesh"
+      mesh="Top_case"
+      pos="0 0 0"
+      euler="1.57 0 0"
+      contype="0"
+      conaffinity="0"
+      rgba="0.615686 0.811765 0.929412 1"/>
+    <geom
+      name="top_case_collision"
+      type="box"
+      pos="0 0 0.02"
+      size="0.0625 0.0525 0.0412"
+      rgba="0 1 0 0.2"
+      group="3"/>
+    <geom pos="0 0 -0.0232" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" 
+      contype="0"
+      conaffinity="0"
+      mesh="Bottom_case"/>
+    <body name="left_back_leg" pos="0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_10" pos="0 0 0" axis="0 -1 0"/>
+      <geom pos="0.012 0.015 0" quat="0.707105 0 -0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
+        contype="0"
+        conaffinity="0"/>
+      <body name="leg_middle_part_1" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_12" pos="0 0 0" axis="0 -1 0"/>
+        <geom pos="0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
+        <body name="part_1_4" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
+          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_3" pos="0 0 0" axis="1 0 0" limited="true" range="0 3.14"/>
+          <geom pos="0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
+          <geom pos="0.017 -0.076775 0.017856" quat="0.499998 -0.500002 -0.5 -0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+        </body>
+      </body>
+    </body>
+    <body name="right_back_leg" pos="0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_5" pos="0 0 0" axis="0 -1 0"/>
+      <geom pos="0.012 0.015 0" quat="0.707105 0 -0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
+        contype="0"
+        conaffinity="0"/>
+      <body name="leg_middle_part_2" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_6" pos="0 0 0" axis="0 -1 0"/>
+        <geom pos="0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
+        <body name="part_1_5" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
+          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_4" pos="0 0 0" axis="1 0 0" limited="true" range="0 3.14"/>
+          <geom pos="0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
+          <geom pos="0.017 -0.076775 0.017856" quat="9.38184e-07 9.38187e-07 0.707108 0.707105" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+        </body>
+      </body>
+    </body>
+    <body name="right_front_leg" pos="-0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_7" pos="0 0 0" axis="0 -1 0" range="0 1.57"/>
+      <geom pos="-0.012 0.015 0" quat="0.707105 0 0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
+        contype="0"
+        conaffinity="0"/>
+      <body name="leg_middle_part_3" pos="-0.025 0.0075 -0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="-0.024 -0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_8" pos="0 0 0" axis="0 1 0" range="0 1.2"/>
+        <geom pos="-0.024 -0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
+        <body name="part_1_3" pos="-0.048 -0.034 0" quat="0.707105 0 0 -0.707108">
+          <inertial pos="-0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_1" pos="0 0 0" axis="-1 0 0" limited="true" range="-3.14 0"/>
+          <geom pos="-0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
+          <geom pos="-0.017 -0.076775 0.017856" quat="0.499998 -0.500002 0.5 0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+        </body>
+      </body>
+    </body>
+    <body name="left_front_leg" pos="-0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
+      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
+      <joint name="revolute_9" pos="0 0 0" axis="0 -1 0" range="-1.57 0"/>
+      <geom pos="-0.012 0.015 0" quat="0.707105 0 0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
+        contype="0"
+        conaffinity="0"/>
+      <body name="leg_middle_part" pos="-0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
+        <inertial pos="-0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
+        <joint name="revolute_11" pos="0 0 0" axis="0 -1 0" range="-3.14 0"/>
+        <geom pos="-0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
+        <body name="part_1_1" pos="-0.048 0 0" quat="9.38184e-07 0.707105 -0.707108 -9.38187e-07">
+          <inertial pos="-0.017 0.0291323 -0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
+          <joint name="revolute_2" pos="0 0 0" axis="-1 0 0" limited="true" range="-3.14 0"/>
+          <geom pos="-0.017 0.076775 -0.017856" quat="0.707105 0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
+          <geom pos="-0.017 0.076775 -0.017856" quat="0.499998 0.500002 -0.5 0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+        </body>
+      </body>
+    </body>
+    </body>
+  </worldbody>
+</mujoco>
