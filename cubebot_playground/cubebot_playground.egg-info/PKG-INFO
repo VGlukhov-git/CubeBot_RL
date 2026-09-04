@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: cubebot-playground
+Version: 0.1.0
+Summary: CubeBot environments for MuJoCo Playground
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# CubeBot Playground
+
+Заготовка проекта для обучения и тестирования CubeBot в MuJoCo Playground.
+
+## Структура
+
+- `cubebot_playground/` — модель робота, среды, награды и ландшафты.
+- `learning/` — обучение PPO и запуск обученной политики.
+- `scripts/` — просмотр модели и быстрые проверки среды.
+- `checkpoints/` — локальные контрольные точки обучения.
+
+Установка в режиме разработки:
+
+```bash
+python -m pip install -e .
+```
+

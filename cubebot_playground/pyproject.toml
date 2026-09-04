@@ -15,3 +15,4 @@ include = ["cubebot_playground*"]
 
 [tool.setuptools.package-data]
 "cubebot_playground.cubebot" = ["cubebot.xml", "meshes/*.stl"]
+"cubebot_playground.cubebot.balance" = ["*.xml"]

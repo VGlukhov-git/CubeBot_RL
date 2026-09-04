@@ -1,0 +1,16 @@
+<mujoco model="cubebot_balance">
+  <include file="../cubebot.xml"/>
+
+  <visual>
+    <headlight/>
+  </visual>
+
+  <worldbody>
+    <geom
+      name="floor"
+      type="plane"
+      size="5 5 0.1"
+      rgba="0.8 0.8 0.8 1"
+    />
+  </worldbody>
+</mujoco>
