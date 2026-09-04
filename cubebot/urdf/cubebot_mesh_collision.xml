@@ -1,110 +1,838 @@
 <mujoco model="cubebot">
   <compiler angle="radian"/>
 
+  <!-- ========================================================= -->
+  <!-- DEFAULTS                                                  -->
+  <!-- ========================================================= -->
+
+  <default>
+
+    <!--
+      Visual STL geometry.
+      Does NOT participate in collisions.
+      group=2 allows visual geometry to be hidden separately.
+    -->
+    <default class="visual">
+      <geom
+        contype="0"
+        conaffinity="0"
+        group="2"/>
+    </default>
+
+    <!--
+      Physical collision geometry.
+
+      group=3 allows us to show/hide all collision geometry
+      from the MuJoCo viewer.
+
+      Keep it semi-transparent while setting up the model.
+      Later it can simply be hidden by disabling geom group 3.
+    -->
+    <default class="collision">
+      <geom
+        contype="1"
+        conaffinity="1"
+        group="3"
+        rgba="1 0 0 0.30"/>
+    </default>
+
+  </default>
+
+
+  <!-- ========================================================= -->
+  <!-- ASSETS                                                    -->
+  <!-- ========================================================= -->
+
   <asset>
-    <mesh name="Bottom_case" content_type="model/stl" file="meshes/Bottom_case.stl"/>
-    <mesh name="Foot" content_type="model/stl" file="meshes/Foot.stl"/>
-    <mesh name="Leg_middle_part" content_type="model/stl" file="meshes/Leg_middle_part.stl"/>
-    <mesh name="Part_1" content_type="model/stl" file="meshes/Part_1.stl"/>
-    <mesh name="Part_1_1" content_type="model/stl" file="meshes/Part_1_1.stl"/>
-    <!-- <mesh name="Top_case" content_type="model/stl" file="meshes/Top_case.stl"/> -->
-    <mesh name="Top_case" content_type="model/stl" file="meshes/Top_case_HD.stl" scale="0.001 0.001 0.001"/>
+
+    <mesh
+      name="Bottom_case"
+      content_type="model/stl"
+      file="meshes/Bottom_case.stl"/>
+
+    <mesh
+      name="Foot"
+      content_type="model/stl"
+      file="meshes/Foot.stl"/>
+
+    <mesh
+      name="Leg_middle_part"
+      content_type="model/stl"
+      file="meshes/Leg_middle_part.stl"/>
+
+    <mesh
+      name="Part_1"
+      content_type="model/stl"
+      file="meshes/Part_1.stl"/>
+
+    <mesh
+      name="Part_1_1"
+      content_type="model/stl"
+      file="meshes/Part_1_1.stl"/>
+
+    <mesh
+      name="Top_case"
+      content_type="model/stl"
+      file="meshes/Top_case_HD.stl"
+      scale="0.001 0.001 0.001"/>
+
   </asset>
 
+
+  <!-- ========================================================= -->
+  <!-- WORLD                                                     -->
+  <!-- ========================================================= -->
+
   <worldbody>
-   <body name="cubebot" pos="0 0 0.25" euler="0 45 0">
-    <freejoint name="root_freejoint"/>
-    <geom
-      type="mesh"
-      mesh="Top_case"
-      pos="0 0 0"
-      euler="1.57 0 0"
-      contype="0"
-      conaffinity="0"
-      rgba="0.615686 0.811765 0.929412 1"/>
-    <geom
-      name="top_case_collision"
-      type="box"
-      pos="0 0 0.02"
-      size="0.0625 0.0525 0.0412"
-      rgba="0 1 0 0.2"
-      group="3"/>
-    <geom pos="0 0 -0.0232" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" 
-      contype="0"
-      conaffinity="0"
-      mesh="Bottom_case"/>
-    <body name="left_back_leg" pos="0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
-      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
-      <joint name="revolute_10" pos="0 0 0" axis="0 -1 0"/>
-      <geom pos="0.012 0.015 0" quat="0.707105 0 -0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
-        contype="0"
-        conaffinity="0"/>
-      <body name="leg_middle_part_1" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
-        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
-        <joint name="revolute_12" pos="0 0 0" axis="0 -1 0"/>
-        <geom pos="0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
-        <body name="part_1_4" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
-          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
-          <joint name="revolute_3" pos="0 0 0" axis="1 0 0" limited="true" range="0 3.14"/>
-          <geom pos="0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
-          <geom pos="0.017 -0.076775 0.017856" quat="0.499998 -0.500002 -0.5 -0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+
+    <body
+      name="cubebot"
+      pos="0 0 0.1"
+      euler="0 0 0">
+
+      <freejoint name="root_freejoint"/>
+
+
+      <!-- ===================================================== -->
+      <!-- MAIN BODY                                             -->
+      <!-- ===================================================== -->
+
+      <!-- Top case visual -->
+
+      <geom
+        class="visual"
+        type="mesh"
+        mesh="Top_case"
+        pos="0 0 0"
+        euler="1.57 0 0"
+        rgba="0.615686 0.811765 0.929412 1"/>
+
+
+      <!-- Top case collision -->
+
+      <geom
+        class="collision"
+        name="top_case_collision"
+        type="box"
+        pos="0 0 0.015"
+        size="0.0625 0.0525 0.0212"/>
+
+
+      <!-- Bottom case visual -->
+
+      <geom
+        class="visual"
+        pos="0 0 -0.0232"
+        quat="1 0 0 0"
+        type="mesh"
+        rgba="0.615686 0.811765 0.929412 1"
+        mesh="Bottom_case"/>
+
+      <geom
+        class="collision"
+        name="bottom_case_collision"
+        type="box"
+        pos="0 0 -0.0112"
+        size="0.0425 0.0425 0.0112"/>
+      <!-- ===================================================== -->
+      <!-- LEFT BACK LEG                                         -->
+      <!-- ===================================================== -->
+
+      <body
+        name="left_back_leg"
+        pos="0.0465 -0.0385 -0.0232"
+        quat="0.707105 0.707108 0 0">
+
+        <inertial
+          pos="0.0105506 0.0075 0"
+          quat="0.707107 0 0 0.707107"
+          mass="0.03"
+          diaginertia="9.164e-06 6.718e-06 3.593e-06"/>
+
+        <joint
+          name="revolute_10"
+          pos="0 0 0"
+          axis="0 -1 0"/>
+
+
+        <!-- Hip visual -->
+
+        <geom
+          class="visual"
+          pos="0.012 0.015 0"
+          quat="0.707105 0 -0.707108 0"
+          type="mesh"
+          rgba="0.615686 0.811765 0.929412 1"
+          mesh="Part_1"/>
+
+
+        <!-- Hip collision -->
+
+        <!-- <geom
+          class="collision"
+          name="left_back_hip_collision"
+          type="box"
+          pos="0.012 0.015 0"
+          size="0.012 0.015 0.012"/>
+ -->
+
+        <!-- Middle part -->
+
+        <body
+          name="leg_middle_part_1"
+          pos="0.025 0.0075 0.017"
+          quat="0.707105 -0.707108 0 0">
+
+          <inertial
+            pos="0.024 0.017 0"
+            quat="0 0.707107 0 0.707107"
+            mass="0.03"
+            diaginertia="1.507e-05 1.279e-05 3.498e-06"/>
+
+          <joint
+            name="revolute_12"
+            pos="0 0 0"
+            axis="0 -1 0"/>
+
+
+          <!-- Middle visual -->
+
+          <geom
+            class="visual"
+            pos="0.024 0.017 -0.00775"
+            quat="1 0 0 0"
+            type="mesh"
+            rgba="0.615686 0.811765 0.929412 1"
+            mesh="Leg_middle_part"/>
+
+
+          <!-- Middle collision -->
+
+          <geom
+            class="collision"
+            name="left_back_middle_collision"
+            type="box"
+            pos="0.024 0.017 0"
+            size="0.024 0.017 0.00775"/>
+
+
+          <!-- Lower part -->
+
+          <body
+            name="part_1_4"
+            pos="0.048 0 0"
+            quat="0.707105 0 0 0.707108">
+
+            <inertial
+              pos="0.017 -0.0291323 0.0162249"
+              quat="0.513092 0.486555 -0.486555 0.513092"
+              mass="0.03"
+              diaginertia="3.099e-05 2.863e-05 4.085e-06"/>
+
+            <joint
+              name="revolute_3"
+              pos="0 0 0"
+              axis="1 0 0"
+              limited="true"
+              range="0 3.14"/>
+
+
+            <!-- Lower visual -->
+
+            <geom
+              class="visual"
+              pos="0.017 -0.076775 0.017856"
+              quat="0.707105 -0.707108 0 0"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Part_1_1"/>
+
+
+            <!-- Lower collision -->
+
+            <geom
+              class="collision"
+              name="left_back_lower_collision"
+              type="box"
+              pos="0.017 -0.038 0.017856"
+              size="0.005 0.038 0.005"/>
+
+
+            <!-- Foot visual -->
+
+            <geom
+              class="visual"
+              pos="0.017 -0.076775 0.017856"
+              quat="0.499998 -0.500002 -0.5 -0.5"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Foot"/>
+
+
+            <!-- Foot collision -->
+
+            <geom
+              class="collision"
+              name="left_back_foot_collision"
+              type="sphere"
+              size="0.008"
+              pos="0.017 -0.076775 0.017856"/>
+
+          </body>
         </body>
       </body>
-    </body>
-    <body name="right_back_leg" pos="0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
-      <inertial pos="0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
-      <joint name="revolute_5" pos="0 0 0" axis="0 -1 0"/>
-      <geom pos="0.012 0.015 0" quat="0.707105 0 -0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
-        contype="0"
-        conaffinity="0"/>
-      <body name="leg_middle_part_2" pos="0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
-        <inertial pos="0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
-        <joint name="revolute_6" pos="0 0 0" axis="0 -1 0"/>
-        <geom pos="0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
-        <body name="part_1_5" pos="0.048 0 0" quat="0.707105 0 0 0.707108">
-          <inertial pos="0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
-          <joint name="revolute_4" pos="0 0 0" axis="1 0 0" limited="true" range="0 3.14"/>
-          <geom pos="0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
-          <geom pos="0.017 -0.076775 0.017856" quat="9.38184e-07 9.38187e-07 0.707108 0.707105" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+
+
+      <!-- ===================================================== -->
+      <!-- RIGHT BACK LEG                                        -->
+      <!-- ===================================================== -->
+
+      <body
+        name="right_back_leg"
+        pos="0.0465 0.0385 -0.0232"
+        quat="0.707105 0.707108 0 0">
+
+        <inertial
+          pos="0.0105506 0.0075 0"
+          quat="0.707107 0 0 0.707107"
+          mass="0.03"
+          diaginertia="9.164e-06 6.718e-06 3.593e-06"/>
+
+        <joint
+          name="revolute_5"
+          pos="0 0 0"
+          axis="0 -1 0"/>
+
+
+        <!-- Hip visual -->
+
+        <geom
+          class="visual"
+          pos="0.012 0.015 0"
+          quat="0.707105 0 -0.707108 0"
+          type="mesh"
+          rgba="0.615686 0.811765 0.929412 1"
+          mesh="Part_1"/>
+
+
+        <!-- Hip collision -->
+
+        <!-- <geom
+          class="collision"
+          name="right_back_hip_collision"
+          type="box"
+          pos="0.012 0.015 0"
+          size="0.012 0.015 0.012"/> -->
+
+
+        <body
+          name="leg_middle_part_2"
+          pos="0.025 0.0075 0.017"
+          quat="0.707105 -0.707108 0 0">
+
+          <inertial
+            pos="0.024 0.017 0"
+            quat="0 0.707107 0 0.707107"
+            mass="0.03"
+            diaginertia="1.507e-05 1.279e-05 3.498e-06"/>
+
+          <joint
+            name="revolute_6"
+            pos="0 0 0"
+            axis="0 -1 0"/>
+
+
+          <!-- Middle visual -->
+
+          <geom
+            class="visual"
+            pos="0.024 0.017 -0.00775"
+            quat="1 0 0 0"
+            type="mesh"
+            rgba="0.615686 0.811765 0.929412 1"
+            mesh="Leg_middle_part"/>
+
+
+          <!-- Middle collision -->
+
+          <geom
+            class="collision"
+            name="right_back_middle_collision"
+            type="box"
+            pos="0.024 0.017 0"
+            size="0.024 0.017 0.00775"/>
+
+
+          <body
+            name="part_1_5"
+            pos="0.048 0 0"
+            quat="0.707105 0 0 0.707108">
+
+            <inertial
+              pos="0.017 -0.0291323 0.0162249"
+              quat="0.513092 0.486555 -0.486555 0.513092"
+              mass="0.03"
+              diaginertia="3.099e-05 2.863e-05 4.085e-06"/>
+
+            <joint
+              name="revolute_4"
+              pos="0 0 0"
+              axis="1 0 0"
+              limited="true"
+              range="0 3.14"/>
+
+
+            <!-- Lower visual -->
+
+            <geom
+              class="visual"
+              pos="0.017 -0.076775 0.017856"
+              quat="0.707105 -0.707108 0 0"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Part_1_1"/>
+
+
+            <!-- Lower collision -->
+
+            <geom
+              class="collision"
+              name="right_back_lower_collision"
+              type="box"
+              pos="0.017 -0.038 0.017856"
+              size="0.005 0.038 0.005"/>
+
+
+            <!-- Foot visual -->
+
+            <geom
+              class="visual"
+              pos="0.017 -0.076775 0.017856"
+              quat="9.38184e-07 9.38187e-07 0.707108 0.707105"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Foot"/>
+
+
+            <!-- Foot collision -->
+
+            <geom
+              class="collision"
+              name="right_back_foot_collision"
+              type="sphere"
+              size="0.008"
+              pos="0.017 -0.076775 0.017856"/>
+
+          </body>
         </body>
       </body>
-    </body>
-    <body name="right_front_leg" pos="-0.0465 0.0385 -0.0232" quat="0.707105 0.707108 0 0">
-      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
-      <joint name="revolute_7" pos="0 0 0" axis="0 -1 0" range="0 1.57"/>
-      <geom pos="-0.012 0.015 0" quat="0.707105 0 0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
-        contype="0"
-        conaffinity="0"/>
-      <body name="leg_middle_part_3" pos="-0.025 0.0075 -0.017" quat="0.707105 -0.707108 0 0">
-        <inertial pos="-0.024 -0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
-        <joint name="revolute_8" pos="0 0 0" axis="0 1 0" range="0 1.2"/>
-        <geom pos="-0.024 -0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
-        <body name="part_1_3" pos="-0.048 -0.034 0" quat="0.707105 0 0 -0.707108">
-          <inertial pos="-0.017 -0.0291323 0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
-          <joint name="revolute_1" pos="0 0 0" axis="-1 0 0" limited="true" range="-3.14 0"/>
-          <geom pos="-0.017 -0.076775 0.017856" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
-          <geom pos="-0.017 -0.076775 0.017856" quat="0.499998 -0.500002 0.5 0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+
+
+      <!-- ===================================================== -->
+      <!-- RIGHT FRONT LEG                                       -->
+      <!-- ===================================================== -->
+
+      <body
+        name="right_front_leg"
+        pos="-0.0465 0.0385 -0.0232"
+        quat="0.707105 0.707108 0 0">
+
+        <inertial
+          pos="-0.0105506 0.0075 0"
+          quat="0.707107 0 0 0.707107"
+          mass="0.03"
+          diaginertia="9.164e-06 6.718e-06 3.593e-06"/>
+
+        <joint
+          name="revolute_7"
+          pos="0 0 0"
+          axis="0 -1 0"
+          range="0 1.57"
+              limited="true"/>
+
+
+        <!-- Hip visual -->
+
+        <geom
+          class="visual"
+          pos="-0.012 0.015 0"
+          quat="0.707105 0 0.707108 0"
+          type="mesh"
+          rgba="0.615686 0.811765 0.929412 1"
+          mesh="Part_1"/>
+
+
+        <!-- Hip collision -->
+
+        <!-- <geom
+          class="collision"
+          name="right_front_hip_collision"
+          type="box"
+          pos="-0.012 0.015 0"
+          size="0.012 0.015 0.012"/> -->
+
+
+        <body
+          name="leg_middle_part_3"
+          pos="-0.025 0.0075 -0.017"
+          quat="0.707105 -0.707108 0 0">
+
+          <inertial
+            pos="-0.024 -0.017 0"
+            quat="0 0.707107 0 0.707107"
+            mass="0.03"
+            diaginertia="1.507e-05 1.279e-05 3.498e-06"/>
+
+          <joint
+            name="revolute_8"
+            pos="0 0 0"
+            axis="0 1 0"
+            range="0 1.2"
+              limited="true"/>
+
+
+          <!-- Middle visual -->
+
+          <geom
+            class="visual"
+            pos="-0.024 -0.017 -0.00775"
+            quat="1 0 0 0"
+            type="mesh"
+            rgba="0.615686 0.811765 0.929412 1"
+            mesh="Leg_middle_part"/>
+
+
+          <!-- Middle collision -->
+
+          <geom
+            class="collision"
+            name="right_front_middle_collision"
+            type="box"
+            pos="-0.024 -0.017 0"
+            size="0.024 0.017 0.00775"/>
+
+
+          <body
+            name="part_1_3"
+            pos="-0.048 -0.034 0"
+            quat="0.707105 0 0 -0.707108">
+
+            <inertial
+              pos="-0.017 -0.0291323 0.0162249"
+              quat="0.513092 0.486555 -0.486555 0.513092"
+              mass="0.03"
+              diaginertia="3.099e-05 2.863e-05 4.085e-06"/>
+
+            <joint
+              name="revolute_1"
+              pos="0 0 0"
+              axis="-1 0 0"
+              limited="true"
+              range="-3.14 0"/>
+
+
+            <!-- Lower visual -->
+
+            <geom
+              class="visual"
+              pos="-0.017 -0.076775 0.017856"
+              quat="0.707105 -0.707108 0 0"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Part_1_1"/>
+
+
+            <!-- Lower collision -->
+
+            <geom
+              class="collision"
+              name="right_front_lower_collision"
+              type="box"
+              pos="-0.017 -0.038 0.017856"
+              size="0.005 0.038 0.005"/>
+
+
+            <!-- Foot visual -->
+
+            <geom
+              class="visual"
+              pos="-0.017 -0.076775 0.017856"
+              quat="0.499998 -0.500002 0.5 0.5"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Foot"/>
+
+
+            <!-- Foot collision -->
+
+            <geom
+              class="collision"
+              name="right_front_foot_collision"
+              type="sphere"
+              size="0.008"
+              pos="-0.017 -0.076775 0.017856"/>
+
+          </body>
         </body>
       </body>
-    </body>
-    <body name="left_front_leg" pos="-0.0465 -0.0385 -0.0232" quat="0.707105 0.707108 0 0">
-      <inertial pos="-0.0105506 0.0075 0" quat="0.707107 0 0 0.707107" mass="9.89486e-06" diaginertia="3.02255e-09 2.21659e-09 1.18511e-09"/>
-      <joint name="revolute_9" pos="0 0 0" axis="0 -1 0" range="-1.57 0"/>
-      <geom pos="-0.012 0.015 0" quat="0.707105 0 0.707108 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1"
-        contype="0"
-        conaffinity="0"/>
-      <body name="leg_middle_part" pos="-0.025 0.0075 0.017" quat="0.707105 -0.707108 0 0">
-        <inertial pos="-0.024 0.017 0" quat="0 0.707107 0 0.707107" mass="3.64093e-05" diaginertia="1.82937e-08 1.55246e-08 4.24573e-09"/>
-        <joint name="revolute_11" pos="0 0 0" axis="0 -1 0" range="-3.14 0"/>
-        <geom pos="-0.024 0.017 -0.00775" quat="1 0 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Leg_middle_part"/>
-        <body name="part_1_1" pos="-0.048 0 0" quat="9.38184e-07 0.707105 -0.707108 -9.38187e-07">
-          <inertial pos="-0.017 0.0291323 -0.0162249" quat="0.513092 0.486555 -0.486555 0.513092" mass="1.88451e-05" diaginertia="1.94673e-08 1.79871e-08 2.56604e-09"/>
-          <joint name="revolute_2" pos="0 0 0" axis="-1 0 0" limited="true" range="-3.14 0"/>
-          <geom pos="-0.017 0.076775 -0.017856" quat="0.707105 0.707108 0 0" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Part_1_1"/>
-          <geom pos="-0.017 0.076775 -0.017856" quat="0.499998 0.500002 -0.5 0.5" type="mesh" rgba="0.615686 0.811765 0.929412 1" mesh="Foot"/>
+
+
+      <!-- ===================================================== -->
+      <!-- LEFT FRONT LEG                                        -->
+      <!-- ===================================================== -->
+
+      <body
+        name="left_front_leg"
+        pos="-0.0465 -0.0385 -0.0232"
+        quat="0.707105 0.707108 0 0">
+
+        <inertial
+          pos="-0.0105506 0.0075 0"
+          quat="0.707107 0 0 0.707107"
+          mass="0.03"
+          diaginertia="9.164e-06 6.718e-06 3.593e-06"/>
+
+        <joint
+          name="revolute_9"
+          pos="0 0 0"
+          axis="0 -1 0"
+          range="-1.57 0"
+              limited="true"/>
+
+
+        <!-- Hip visual -->
+
+        <geom
+          class="visual"
+          pos="-0.012 0.015 0"
+          quat="0.707105 0 0.707108 0"
+          type="mesh"
+          rgba="0.615686 0.811765 0.929412 1"
+          mesh="Part_1"/>
+
+
+        <!-- Hip collision -->
+
+        <!-- <geom
+          class="collision"
+          name="left_front_hip_collision"
+          type="box"
+          pos="-0.012 0.015 0"
+          size="0.012 0.015 0.012"/> -->
+
+
+        <body
+          name="leg_middle_part"
+          pos="-0.025 0.0075 0.017"
+          quat="0.707105 -0.707108 0 0">
+
+          <inertial
+            pos="-0.024 0.017 0"
+            quat="0 0.707107 0 0.707107"
+            mass="0.03"
+            diaginertia="1.507e-05 1.279e-05 3.498e-06"/>
+
+          <joint
+            name="revolute_11"
+            pos="0 0 0"
+            axis="0 -1 0"
+            range="-3.14 0"
+              limited="true"/>
+
+
+          <!-- Middle visual -->
+
+          <geom
+            class="visual"
+            pos="-0.024 0.017 -0.00775"
+            quat="1 0 0 0"
+            type="mesh"
+            rgba="0.615686 0.811765 0.929412 1"
+            mesh="Leg_middle_part"/>
+
+
+          <!-- Middle collision -->
+
+          <geom
+            class="collision"
+            name="left_front_middle_collision"
+            type="box"
+            pos="-0.024 0.017 0"
+            size="0.024 0.017 0.00775"/>
+
+
+          <body
+            name="part_1_1"
+            pos="-0.048 0 0"
+            quat="9.38184e-07 0.707105 -0.707108 -9.38187e-07">
+
+            <inertial
+              pos="-0.017 0.0291323 -0.0162249"
+              quat="0.513092 0.486555 -0.486555 0.513092"
+              mass="0.03"
+              diaginertia="3.099e-05 2.863e-05 4.085e-06"/>
+
+            <joint
+              name="revolute_2"
+              pos="0 0 0"
+              axis="-1 0 0"
+              limited="true"
+              range="-3.14 0"/>
+
+
+            <!-- Lower visual -->
+
+            <geom
+              class="visual"
+              pos="-0.017 0.076775 -0.017856"
+              quat="0.707105 0.707108 0 0"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Part_1_1"/>
+
+
+            <!-- Lower collision -->
+
+            <geom
+              class="collision"
+              name="left_front_lower_collision"
+              type="box"
+              pos="-0.017 0.038 -0.017856"
+              size="0.005 0.038 0.005"/>
+
+
+            <!-- Foot visual -->
+
+            <geom
+              class="visual"
+              pos="-0.017 0.076775 -0.017856"
+              quat="0.499998 0.500002 -0.5 0.5"
+              type="mesh"
+              rgba="0.615686 0.811765 0.929412 1"
+              mesh="Foot"/>
+
+
+            <!-- Foot collision -->
+
+            <geom
+              class="collision"
+              name="left_front_foot_collision"
+              type="sphere"
+              size="0.008"
+              pos="-0.017 0.076775 -0.017856"/>
+
+          </body>
         </body>
       </body>
-    </body>
+
     </body>
   </worldbody>
+
+<actuator>
+
+  <!-- LEFT BACK -->
+  <position
+    name="servo_revolute_10"
+    joint="revolute_10"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_12"
+    joint="revolute_12"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_3"
+    joint="revolute_3"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+
+  <!-- RIGHT BACK -->
+  <position
+    name="servo_revolute_5"
+    joint="revolute_5"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_6"
+    joint="revolute_6"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_4"
+    joint="revolute_4"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+
+  <!-- RIGHT FRONT -->
+  <position
+    name="servo_revolute_7"
+    joint="revolute_7"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_8"
+    joint="revolute_8"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_1"
+    joint="revolute_1"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+
+  <!-- LEFT FRONT -->
+  <position
+    name="servo_revolute_9"
+    joint="revolute_9"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_11"
+    joint="revolute_11"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+  <position
+    name="servo_revolute_2"
+    joint="revolute_2"
+    kp="15"
+    dampratio="1"
+    forcelimited="true"
+    forcerange="-0.34 0.34"/>
+
+</actuator>
+
 </mujoco>
