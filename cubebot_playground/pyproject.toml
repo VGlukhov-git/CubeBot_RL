@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cubebot-playground"
+version = "0.1.0"
+description = "CubeBot environments for MuJoCo Playground"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["cubebot_playground*"]
+
+[tool.setuptools.package-data]
+"cubebot_playground.cubebot" = ["cubebot.xml", "meshes/*.stl"]

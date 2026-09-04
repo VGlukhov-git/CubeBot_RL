@@ -1,0 +1,2 @@
+"""CubeBot balance environment."""
+

@@ -1,0 +1,2 @@
+"""Rough terrain definition."""
+
