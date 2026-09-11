@@ -10,6 +10,16 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+standup = [
+    "mjbatch @ git+https://github.com/kevinzakka/mjbatch.git@77966f85bcd8f7ef4351cb4a1a6f42e133d19725",
+    "scipy>=1.11", "torch>=2.2",
+]
+
+[project.scripts]
+cubebot-train-standup = "cubebot_playground.cubebot.standup.train:main"
+cubebot-play-standup = "cubebot_playground.cubebot.standup.play:main"
+
 [tool.setuptools.packages.find]
 include = ["cubebot_playground*"]
 

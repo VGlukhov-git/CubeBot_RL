@@ -1,5 +1,6 @@
 <mujoco model="cubebot">
-  <compiler angle="radian"/>
+  <!-- Scale all body masses and inertias proportionally to 800 g total. -->
+  <compiler angle="radian" settotalmass="0.8"/>
 
   <!-- ========================================================= -->
   <!-- DEFAULTS                                                  -->

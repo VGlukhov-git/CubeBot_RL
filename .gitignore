@@ -1,1 +1,5 @@
 mujoco_playground
+.venv*/
+__pycache__/
+*.egg-info/
+checkpoints/
