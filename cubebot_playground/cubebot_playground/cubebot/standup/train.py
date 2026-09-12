@@ -8,83 +8,25 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch import nn
-from torch.distributions import Normal
 
 from .environment import CubebotStandUp, StandUpConfig
-
-
-class Policy(nn.Module):
-    def __init__(
-        self, reference=None, max_speed=1.0, residual_scale=0.01, feedback_gain=1.0
-    ):
-        super().__init__()
-        self.actor = nn.Sequential(
-            nn.Linear(15, 128),
-            nn.Tanh(),
-            nn.Linear(128, 128),
-            nn.Tanh(),
-            nn.Linear(128, 12),
-        )
-        self.critic = nn.Sequential(
-            nn.Linear(15, 128),
-            nn.Tanh(),
-            nn.Linear(128, 128),
-            nn.Tanh(),
-            nn.Linear(128, 1),
-        )
-        self.log_std = nn.Parameter(torch.full((12,), -1.0))
-        self.register_buffer(
-            "reference",
-            None
-            if reference is None
-            else torch.as_tensor(reference, dtype=torch.float32),
-        )
-        self.max_speed = max_speed
-        self.feedback_gain = feedback_gain
-        self.residual_scale = (
-            residual_scale  # rad/s, before normalization to env action
-        )
-        nn.init.zeros_(self.actor[-1].weight)
-        nn.init.zeros_(self.actor[-1].bias)
-
-    def distribution(self, obs):
-        return Normal(self.actor(obs), self.log_std.clamp(-4, -0.5).exp())
-
-    def action(self, obs, raw=None):
-        raw = self.actor(obs) if raw is None else raw
-        if self.reference is None:  # Read-only compatibility with old checkpoints.
-            return torch.tanh(raw)
-        command = obs[:, 3:] * torch.pi
-        baseline_velocity = self.feedback_gain * (
-            self.reference - command
-        )  # no encoder input
-        correction = self.residual_scale * torch.tanh(raw)
-        return ((baseline_velocity + correction) / self.max_speed).clamp(-0.95, 0.95)
-
-    def value(self, obs):
-        return self.critic(obs).squeeze(-1)
-
-    @classmethod
-    def from_checkpoint(cls, saved):
-        settings = saved.get("controller", {})
-        policy = cls(
-            reference=settings.get("reference"),
-            max_speed=settings.get("max_speed", 1.0),
-            residual_scale=settings.get("residual_scale", 0.01),
-            feedback_gain=settings.get("feedback_gain", 1.0),
-        )
-        policy.load_state_dict(saved["policy"])
-        return policy
+from .policy import Policy
 
 
 @torch.no_grad()
 def evaluate(policy, env):
     """Fixed-seed complete episodes, including preparation, no action noise."""
     env.rng = np.random.default_rng(10000)
-    obs = env.reset()
+    roll = env.config.slope_roll_degrees
+    pitch = env.config.slope_pitch_degrees
+    grid = np.array([(r, p) for r in (-roll, 0, roll) for p in (-pitch, 0, pitch)])
+    targets = grid[np.arange(env.num_envs) % len(grid)]
+    slopes = np.zeros_like(targets) if env.config.dynamic_slope else targets
+    obs = env.reset(slopes=slopes, slope_targets=targets)
     active = np.ones(env.num_envs, dtype=bool)
     success = np.zeros(env.num_envs, dtype=bool)
     final_height = np.zeros(env.num_envs)
+    final_tilt = np.zeros(env.num_envs)
     rewards, slips, drifts, stable_tail = [], [], [], []
     length = len(env.prestep_commands) + int(
         np.ceil(env.config.episode_seconds / env.config.ctrl_dt)
@@ -101,13 +43,32 @@ def evaluate(policy, env):
             stable_tail.extend((info["stable"] & active).tolist())
         done = active & (terminated | truncated)
         final_height[done] = info["height"][done]
+        final_tilt[done] = info["world_tilt_degrees"][done]
         success[done] = info["success"][done] & ~terminated[done]
         active[done] = False
         if not active.any():
             break
+        if done.any():
+            obs = env.reset(np.flatnonzero(done))
     return {
         "success": float(success.mean()),
+        "cases": [
+            {
+                "roll": float(r),
+                "pitch": float(p),
+                "start_roll": float(sr),
+                "start_pitch": float(sp),
+                "success": bool(ok),
+                "height": float(h),
+                "world_tilt_degrees": float(tilt),
+            }
+            for (r, p), (sr, sp), ok, h, tilt in zip(
+                targets, slopes, success, final_height, final_tilt
+            )
+        ],
         "height": float(final_height.mean()),
+        "world_tilt_degrees": float(final_tilt.mean()),
+        "level_fraction": float((final_tilt < np.rad2deg(0.12)).mean()),
         "rise_reward": float(np.mean(rewards)) if rewards else 0.0,
         "slip": float(np.mean(slips)) if slips else 0.0,
         "drift": float(np.mean(drifts)) if drifts else 0.0,
@@ -118,7 +79,7 @@ def evaluate(policy, env):
 def save_checkpoint(path, policy, env, update, seed, metrics):
     torch.save(
         {
-            "format_version": 2,
+            "format_version": 3,
             "policy": policy.state_dict(),
             "config": asdict(env.config),
             "update": update,
@@ -127,11 +88,25 @@ def save_checkpoint(path, policy, env, update, seed, metrics):
                 "reference": policy.reference.tolist(),
                 "max_speed": policy.max_speed,
                 "feedback_gain": policy.feedback_gain,
+                "leveling_matrix": None
+                if policy.leveling_matrix is None
+                else policy.leveling_matrix.tolist(),
+                "initial_reference": None
+                if policy.initial_reference is None
+                else policy.initial_reference.tolist(),
                 "residual_scale": policy.residual_scale,
             },
             "evaluation": metrics,
-            "observation": "rpy/pi, previous_commands/pi",
+            "observation": "roll_pitch/pi, previous_commands/pi",
             "joint_names": [env.model.joint(int(j)).name for j in env.joints],
+            "hardware": {
+                "ctrl_dt": env.config.ctrl_dt,
+                "max_speed": env.config.max_speed,
+                "max_acceleration": env.config.max_acceleration,
+                "joint_low": env.low.tolist(),
+                "joint_high": env.high.tolist(),
+                "preparation_commands": env.prestep_commands.tolist(),
+            },
         },
         path,
     )
@@ -144,21 +119,77 @@ def main():
     p.add_argument("--updates", type=int, default=1000)
     p.add_argument("--rollout", type=int, default=128)
     p.add_argument("--epochs", type=int, default=4)
-    p.add_argument("--prestep", action="store_true")
-    p.add_argument("--height", type=float, default=0.08)
+    p.add_argument(
+        "--prestep",
+        action="store_true",
+        help="Compatibility alias; simultaneous landing is now always enabled",
+    )
+    p.add_argument(
+        "--foot-inward",
+        type=float,
+        default=0.03,
+        help="Allowed inward foot travel in metres, 0..0.03",
+    )
+    p.add_argument(
+        "--slope-roll",
+        type=float,
+        default=15.0,
+        help="Random plane roll range ±degrees, 0..15",
+    )
+    p.add_argument(
+        "--slope-pitch",
+        type=float,
+        default=15.0,
+        help="Random plane pitch range ±degrees, 0..15",
+    )
+    p.add_argument(
+        "--static-slope",
+        action="store_true",
+        help="Disable the smooth post-rise change of the support plane",
+    )
+    p.add_argument(
+        "--slope-change-start",
+        type=float,
+        default=2.5,
+        help="Seconds after landing before the support begins to tilt",
+    )
+    p.add_argument(
+        "--slope-change-duration",
+        type=float,
+        default=4.0,
+        help="Duration of the smooth support tilt in seconds",
+    )
+    p.add_argument(
+        "--height",
+        type=float,
+        default=0.08,
+        help="Reference pose height, not an exact success target",
+    )
+    p.add_argument(
+        "--min-standing-height",
+        type=float,
+        default=0.045,
+        help="Minimum raised-body clearance for success, metres",
+    )
     p.add_argument("--torque", type=float, default=0.34)
     p.add_argument("--friction", type=float, default=1.5)
     p.add_argument(
         "--residual-scale",
         type=float,
-        default=0.01,
+        default=0.05,
         help="Maximum learned velocity correction, rad/s",
     )
+    p.add_argument(
+        "--rise-gain",
+        type=float,
+        default=1.5,
+        help="Reference convergence gain in 1/s; servo limits remain unchanged",
+    )
     p.add_argument("--eval-every", type=int, default=10)
-    p.add_argument("--eval-envs", type=int, default=8)
+    p.add_argument("--eval-envs", type=int, default=9)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument(
-        "--output", type=Path, default=Path("checkpoints/standup/residual.pt")
+        "--output", type=Path, default=Path("checkpoints/standup/horizontal.pt")
     )
     args = p.parse_args()
     if (
@@ -176,10 +207,19 @@ def main():
         p.error("positive sizes required, with at least two rollout samples")
     if not 0 < args.residual_scale <= 0.05:
         p.error("residual-scale must be in (0, .05] rad/s")
+    if not 0 < args.rise_gain <= 6:
+        p.error("rise-gain must be in (0, 6] 1/s")
     torch.set_num_threads(1)
     torch.manual_seed(args.seed)
     config = StandUpConfig(
-        prestep=args.prestep,
+        start_airborne=True,
+        max_foot_inward=args.foot_inward,
+        min_standing_height=args.min_standing_height,
+        slope_roll_degrees=args.slope_roll,
+        slope_pitch_degrees=args.slope_pitch,
+        dynamic_slope=not args.static_slope,
+        slope_change_start=args.slope_change_start,
+        slope_change_duration=args.slope_change_duration,
         target_height=args.height,
         max_torque=args.torque,
         friction=args.friction,
@@ -190,7 +230,9 @@ def main():
         env.standing_pose,
         config.max_speed,
         args.residual_scale,
-        feedback_gain=1.0 if config.prestep else 0.8,
+        feedback_gain=args.rise_gain,
+        leveling_matrix=env.leveling_matrix,
+        initial_reference=env.initial_pose if config.world_level else None,
     )
     actor_optimizer = torch.optim.Adam(
         [*policy.actor.parameters(), policy.log_std], lr=3e-5
@@ -211,9 +253,9 @@ def main():
             save_checkpoint(args.output, policy, env, update, args.seed, metrics)
         print(
             f"eval update={update} success={metrics['success']:.3f} "
-            f"height={metrics['height']:.4f} rise_slip={metrics['slip']:.5f} "
+            f"height={metrics['height']:.4f} tilt_deg={metrics['world_tilt_degrees']:.2f} rise_slip={metrics['slip']:.5f} "
             f"drift={metrics['drift']:.4f} stable_tail={metrics['stable_tail']:.3f} "
-            f"best_success={best_score[0]:.3f}",
+            f"level_fraction={metrics['level_fraction']:.3f} best_success={best_score[0]:.3f}",
             flush=True,
         )
 
@@ -277,7 +319,7 @@ def main():
             advantages = (advantages - advantages[controlled].mean()) / (
                 advantages[controlled].std() + 1e-8
             )
-        batch_obs = torch.stack(observations).reshape(-1, 15)
+        batch_obs = torch.stack(observations).reshape(-1, env.observation_size)
         batch_action = torch.stack(actions).reshape(-1, 12)
         old_log = torch.stack(log_probs).flatten()
         stop_actor = False

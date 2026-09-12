@@ -3,3 +3,4 @@ mujoco_playground
 __pycache__/
 *.egg-info/
 checkpoints/
+:memory:.ses
