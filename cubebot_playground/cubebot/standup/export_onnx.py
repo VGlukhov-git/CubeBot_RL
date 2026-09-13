@@ -55,6 +55,7 @@ def main():
         "max_acceleration": saved["config"]["max_acceleration"],
         "initial_command": saved["controller"]["initial_reference"],
         "hardware": saved["hardware"],
+        "config": saved["config"],
     }
     entry = model.metadata_props.add()
     entry.key = "cubebot"

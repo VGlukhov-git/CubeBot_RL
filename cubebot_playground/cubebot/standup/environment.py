@@ -15,7 +15,7 @@ class StandUpConfig:
     height_agnostic: bool = True
     min_standing_height: float = 0.045
     world_level: bool = True
-    max_foot_inward: float = 0.03  # allowance along the inward direction, metres
+    max_foot_inward: float = 0.04  # target/allowance toward the body, metres
     start_airborne: bool = True
     slope_roll_degrees: float = 15.0
     slope_pitch_degrees: float = 15.0
@@ -89,8 +89,8 @@ class CubebotStandUp:
             for v in (c.slope_roll_degrees, c.slope_pitch_degrees)
         ):
             raise ValueError("Slope limits must be finite and in 0..25 degrees")
-        if not np.isfinite(c.max_foot_inward) or not 0 <= c.max_foot_inward <= 0.03:
-            raise ValueError("max_foot_inward must be in 0..0.03 m")
+        if not np.isfinite(c.max_foot_inward) or not 0 <= c.max_foot_inward <= 0.05:
+            raise ValueError("max_foot_inward must be in 0..0.05 m")
         if (
             not np.isfinite(c.min_standing_height)
             or not 0.03 <= c.min_standing_height <= 0.07
@@ -170,8 +170,7 @@ class CubebotStandUp:
         posture_feet = self.standing_footholds.copy()
         if c.world_level:
             posture_feet[:, :2] -= (
-                (2.0 / 3.0)
-                * c.max_foot_inward
+                c.max_foot_inward
                 * posture_feet[:, :2]
                 / np.linalg.norm(posture_feet[:, :2], axis=-1)[:, None]
             )

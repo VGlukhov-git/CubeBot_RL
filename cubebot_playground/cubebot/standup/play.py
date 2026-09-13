@@ -1,8 +1,10 @@
 """Evaluate a checkpoint headlessly, or view it (mjpython on macOS)."""
 
 import argparse
+import json
 import time
 from contextlib import nullcontext
+from pathlib import Path
 
 import mujoco
 import numpy as np
@@ -23,8 +25,59 @@ def main():
     p.add_argument("--episodes", type=int, default=5)
     args = p.parse_args()
     torch.set_num_threads(1)
-    saved = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
-    config = dict(saved["config"])
+    checkpoint = Path(args.checkpoint)
+    if checkpoint.suffix.lower() == ".onnx":
+        import onnxruntime as ort
+
+        session = ort.InferenceSession(
+            str(checkpoint), providers=["CPUExecutionProvider"]
+        )
+        metadata_map = session.get_modelmeta().custom_metadata_map
+        if "cubebot" not in metadata_map:
+            raise ValueError("ONNX model has no CubeBot metadata")
+        metadata = json.loads(metadata_map["cubebot"])
+        config = metadata.get("config")
+        if config is None:
+            # ONNX models exported by older versions did not embed the full
+            # simulation configuration.  Use the matching PT checkpoint when
+            # it is available so the Viewer reproduces the trained setup.
+            source_checkpoint = checkpoint.with_suffix(".pt")
+            if not source_checkpoint.is_file():
+                raise ValueError(
+                    "This older ONNX model has no embedded environment config "
+                    f"and {source_checkpoint.name} was not found. Re-export it "
+                    "with the current export_onnx.py."
+                )
+            source = torch.load(
+                source_checkpoint, map_location="cpu", weights_only=True
+            )
+            config = dict(source["config"])
+            print(f"ONNX environment config: {source_checkpoint}")
+        else:
+            config = dict(config)
+
+        input_name = session.get_inputs()[0].name
+
+        def policy_action(observation):
+            return session.run(
+                None,
+                {input_name: np.asarray(observation, dtype=np.float32)},
+            )[0]
+
+        runtime_name = "ONNX Runtime"
+    elif checkpoint.suffix.lower() in (".pt", ".pth"):
+        saved = torch.load(checkpoint, map_location="cpu", weights_only=True)
+        config = dict(saved["config"])
+        policy = Policy.from_checkpoint(saved).eval()
+
+        def policy_action(observation):
+            with torch.no_grad():
+                return policy.action(torch.from_numpy(observation)).numpy()
+
+        runtime_name = "PyTorch"
+    else:
+        raise ValueError("Checkpoint must have a .pt, .pth, or .onnx extension")
+
     # Old checkpoints retain their original flat/sequential initialization.
     config.setdefault("height_agnostic", False)
     config.setdefault("world_level", False)
@@ -37,7 +90,7 @@ def main():
     config.setdefault("slope_change_start", 2.5)
     config.setdefault("slope_change_duration", 4.0)
     env = CubebotStandUp(1, StandUpConfig(**config))
-    policy = Policy.from_checkpoint(saved).eval()
+    print(f"Policy runtime: {runtime_name} ({checkpoint})")
     data = mujoco.MjData(env.model)
     context = nullcontext(None)
     if args.viewer:
@@ -67,8 +120,7 @@ def main():
                 + int(np.ceil(env.config.episode_seconds / env.config.ctrl_dt))
             ):
                 start = time.monotonic()
-                with torch.no_grad():
-                    action = policy.action(torch.from_numpy(obs)).numpy()
+                action = policy_action(obs)
                 obs, reward, terminated, truncated, info = env.step(action)
                 total += reward[0]
                 if not info["preparing"][0]:

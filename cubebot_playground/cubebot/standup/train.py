@@ -115,7 +115,7 @@ def save_checkpoint(path, policy, env, update, seed, metrics):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--num-envs", type=int, default=256)
-    p.add_argument("--num-threads", type=int, default=0)
+    p.add_argument("--num-threads", type=int, default=1000)
     p.add_argument("--updates", type=int, default=1000)
     p.add_argument("--rollout", type=int, default=128)
     p.add_argument("--epochs", type=int, default=4)
@@ -127,8 +127,8 @@ def main():
     p.add_argument(
         "--foot-inward",
         type=float,
-        default=0.03,
-        help="Allowed inward foot travel in metres, 0..0.03",
+        default=0.06,
+        help="Target and allowed inward foot travel in metres, 0..0.05",
     )
     p.add_argument(
         "--slope-roll",
@@ -171,7 +171,7 @@ def main():
         default=0.045,
         help="Minimum raised-body clearance for success, metres",
     )
-    p.add_argument("--torque", type=float, default=0.34)
+    p.add_argument("--torque", type=float, default=0.3)
     p.add_argument("--friction", type=float, default=1.5)
     p.add_argument(
         "--residual-scale",
@@ -182,7 +182,7 @@ def main():
     p.add_argument(
         "--rise-gain",
         type=float,
-        default=1.5,
+        default=5,
         help="Reference convergence gain in 1/s; servo limits remain unchanged",
     )
     p.add_argument("--eval-every", type=int, default=10)
